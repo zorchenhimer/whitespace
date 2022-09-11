@@ -11,6 +11,7 @@ import (
 type Parser struct {
 	r *Reader
 	labels map[string]int
+	Debug bool
 }
 
 func NewParser(reader *Reader) *Parser {
@@ -21,6 +22,20 @@ func (p *Parser) Parse() ([]inst.Instruction, error) {
 	var err error
 	var r rune
 	cmds := []inst.Instruction{}
+
+	if p.Debug {
+		defer func() {
+			if len(cmds) == 0 {
+				fmt.Println("no commands parsed")
+				return
+			}
+
+			for i, c := range cmds {
+				fmt.Printf("[%d] %s\n", i, c.Asm())
+			}
+		}()
+	}
+
 	for {
 		r, _, err = p.r.ReadRune()
 		if err != nil {
@@ -38,6 +53,9 @@ func (p *Parser) Parse() ([]inst.Instruction, error) {
 			case '\n':
 				// flow control
 				cmd, err = p.parseFlow()
+				if err != nil {
+					return nil, fmt.Errorf("flow parse error: %q", err)
+				}
 				if cmd.Type() == inst.CmdLabel{
 					lbl := cmd.(*inst.Label)
 					if _, exist := p.labels[lbl.Value]; exist {
@@ -76,7 +94,7 @@ func (p *Parser) Parse() ([]inst.Instruction, error) {
 			if err == io.EOF {
 				break
 			}
-			return nil, err
+			return cmds, err
 		}
 
 		cmds = append(cmds, cmd)

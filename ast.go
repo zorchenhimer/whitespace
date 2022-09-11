@@ -20,6 +20,10 @@ func getAst(instructions []inst.Instruction) (*node, error) {
 	var ast *node
 	var start *node
 
+	if len(instructions) == 0 {
+		return nil, fmt.Errorf("no instructions given")
+	}
+
 	// first pass.  Find labels, add all instructions.
 	for idx, i := range instructions {
 		a := &node{idx: idx, Instruction: i}
@@ -64,7 +68,7 @@ func getAst(instructions []inst.Instruction) (*node, error) {
 	var curr *node
 	curr = ast
 	for {
-		if curr.Next == nil {
+		if curr == nil || curr.Next == nil {
 			break
 		}
 

@@ -1,5 +1,9 @@
 package instructions
 
+import (
+	"fmt"
+)
+
 type Command int
 const (
 	/*
@@ -74,11 +78,11 @@ const (
 	CmdJump
 
 	// Jump to a label if the top of the stack is Zero
-	// NTS
+	// NTSL
 	CmdJumpZero
 
 	// Jump to a label if the top of the stack is Negitave
-	// NTT
+	// NTTL
 	CmdJumpMinus
 
 	// Return from subroutine
@@ -108,6 +112,8 @@ const (
 
 type Instruction interface {
 	Type() Command
+	Wsp() string
+	Asm() string
 }
 
 type Push struct {
@@ -126,6 +132,14 @@ func (c Push)  Type() Command { return CmdPush }
 func (c Copy)  Type() Command { return CmdCopy }
 func (c Slide) Type() Command { return CmdSlide }
 
+func (c Push)  Wsp() string { return "  "+EncodeNumber(c.Value) }
+func (c Copy)  Wsp() string { return " \t "+EncodeNumber(c.Value) }
+func (c Slide) Wsp() string { return " \t\n"+EncodeNumber(c.Value)  }
+
+func (c Push)  Asm() string { return fmt.Sprintf("push %d", c.Value) }
+func (c Copy)  Asm() string { return fmt.Sprintf("copy %d", c.Value) }
+func (c Slide) Asm() string { return fmt.Sprintf("slide %d", c.Value)  }
+
 type Duplicate struct {}
 type Swap struct {}
 type Discard struct {}
@@ -133,6 +147,14 @@ type Discard struct {}
 func (c Duplicate) Type() Command { return CmdDuplicate }
 func (c Swap)      Type() Command { return CmdSwap }
 func (c Discard)   Type() Command { return CmdDiscard }
+
+func (c Duplicate) Wsp() string { return " \n " }
+func (c Swap)      Wsp() string { return " \n\t" }
+func (c Discard)   Wsp() string { return " \n\n" }
+
+func (c Duplicate) Asm() string { return "duplicate" }
+func (c Swap)      Asm() string { return "swap" }
+func (c Discard)   Asm() string { return "discard" }
 
 // Math
 
@@ -148,12 +170,30 @@ func (c Multiply) Type() Command { return CmdMultiply }
 func (c Divide)   Type() Command { return CmdDivide }
 func (c Modulo)   Type() Command { return CmdModulo }
 
+func (c Add)      Wsp() string { return "\t   " }
+func (c Subtract) Wsp() string { return "\t  \t" }
+func (c Multiply) Wsp() string { return "\t  \n" }
+func (c Divide)   Wsp() string { return "\t \t " }
+func (c Modulo)   Wsp() string { return "\t \t\t" }
+
+func (c Add)      Asm() string { return "add" }
+func (c Subtract) Asm() string { return "subtract" }
+func (c Multiply) Asm() string { return "multiply" }
+func (c Divide)   Asm() string { return "divide" }
+func (c Modulo)   Asm() string { return "modulo" }
+
 // Heap
 type Store struct {}
 type Load struct {}
 
 func (c Store) Type() Command { return CmdStore }
 func (c Load)  Type() Command { return CmdLoad }
+
+func (c Store) Wsp() string { return "\t\t " }
+func (c Load)  Wsp() string { return "\t\t\t" }
+
+func (c Store) Asm() string { return "store" }
+func (c Load)  Asm() string { return "load" }
 
 // Flow control
 type FlowControl interface {
@@ -203,6 +243,22 @@ func (c JumpMinus) Type() Command { return CmdJumpMinus }
 func (c Return)    Type() Command { return CmdReturn }
 func (c Stop)      Type() Command { return CmdStop }
 
+func (c Label)     Wsp() string { return "\n  "+c.Value }
+func (c Call)      Wsp() string { return "\n \t"+c.Value }
+func (c Jump)      Wsp() string { return "\n \n"+c.Value }
+func (c JumpZero)  Wsp() string { return "\n\t "+c.Value }
+func (c JumpMinus) Wsp() string { return "\n\t\t"+c.Value }
+func (c Return)    Wsp() string { return "\n\t\n" }
+func (c Stop)      Wsp() string { return "\n\n\n" }
+
+func (c Label)     Asm() string { return "label "+DecodeLabel(c.Value) }
+func (c Call)      Asm() string { return "call "+DecodeLabel(c.Value) }
+func (c Jump)      Asm() string { return "jump "+DecodeLabel(c.Value) }
+func (c JumpZero)  Asm() string { return "jumpzero "+DecodeLabel(c.Value) }
+func (c JumpMinus) Asm() string { return "jumpminus "+DecodeLabel(c.Value) }
+func (c Return)    Asm() string { return "return" }
+func (c Stop)      Asm() string { return "stop" }
+
 // I/O
 type PrintChar struct {}
 type PrintNumber struct {}
@@ -213,6 +269,16 @@ func (c PrintChar)   Type() Command { return CmdPrintChar }
 func (c PrintNumber) Type() Command { return CmdPrintNumber }
 func (c ReadChar)    Type() Command { return CmdReadChar }
 func (c ReadNumber)  Type() Command { return CmdReadNumber }
+
+func (c PrintChar)   Wsp() string { return "\t\n  " }
+func (c PrintNumber) Wsp() string { return "\t\n \t" }
+func (c ReadChar)    Wsp() string { return "\t\n\t " }
+func (c ReadNumber)  Wsp() string { return "\t\n\t\t" }
+
+func (c PrintChar)   Asm() string { return "printchar" }
+func (c PrintNumber) Asm() string { return "printnumber" }
+func (c ReadChar)    Asm() string { return "readchar" }
+func (c ReadNumber)  Asm() string { return "readnumber" }
 
 func CmdString(c Command) string {
 	switch c {

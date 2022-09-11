@@ -11,6 +11,7 @@ type Engine struct {
 	ast *node
 	stack *Stack[int64]
 	calls *Stack[*node]
+	Debug bool
 }
 
 func NewEngine(reader io.Reader) (*Engine, error) {
@@ -34,7 +35,13 @@ func (e *Engine) Run(input io.Reader, output io.Writer) error {
 	}
 
 	for {
+		if e.ast == nil || e.ast.Instruction == nil {
+			return fmt.Errorf("premature end")
+		}
 		i := e.ast.Instruction
+		if e.Debug {
+			fmt.Println(i.Asm())
+		}
 		branched := false
 		switch i.Type() {
 		case inst.CmdPush:
