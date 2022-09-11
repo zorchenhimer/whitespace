@@ -1,11 +1,11 @@
 package whitespace
 
-type Stack[T interface{}] struct {
+type Stack[T any] struct {
 	data []T
 	bottom int
 }
 
-func NewStack[T interface{}]() *Stack[T] {
+func NewStack[T any]() *Stack[T] {
 	return &Stack[T]{data: []T{}, bottom: 0}
 }
 
