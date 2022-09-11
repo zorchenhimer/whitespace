@@ -1,15 +1,15 @@
 package whitespace
 
-//import (
-//	"testing"
-//	"strings"
-//	"io"
-//)
+import (
+	"testing"
+	"strings"
+	//"io"
+)
 
-/*
+
 func TestEngineBasic(t *testing.T) {
-	source := ``
-	expected := ``
+	source := "   \t\n   \t \n\t   \t\n \t\n\n\n"
+	expected := `3`
 
 	reader := strings.NewReader(source)
 	e, err := NewEngine(reader)
@@ -26,5 +26,5 @@ func TestEngineBasic(t *testing.T) {
 	if out.String() != expected {
 		t.Fatalf("Unexpected output.\n Rec: %q\n Exp: %q", out.String(), expected)
 	}
+	t.Logf("output: %q", out.String())
 }
-*/

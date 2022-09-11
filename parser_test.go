@@ -13,7 +13,7 @@ type TestCase struct {
 	Output []inst.Instruction
 }
 
-func TestParseSingle(t *testing.T) {
+func TestParseInstructions(t *testing.T) {
 	tests := []TestCase{
 		{"Add",      "\t   ",   []inst.Instruction{inst.Add{}}},
 		{"Subtract", "\t  \t",  []inst.Instruction{inst.Subtract{}}},
@@ -92,6 +92,20 @@ func TestParseNumber(t *testing.T) {
 	}
 }
 
+func TestParseSmallProgram(t *testing.T) {
+	tests := []TestCase{
+		{"Addition", "   \t\n   \t \n\t   \t\n \t\n\n\n", []inst.Instruction{
+			inst.Push{1},
+			inst.Push{2},
+			inst.Add{},
+			inst.PrintNumber{},
+			inst.Stop{},
+		}},
+	}
+
+	runParseTests(t, tests)
+}
+
 func runParseTests(t *testing.T, tests []TestCase) {
 	t.Helper()
 
@@ -125,9 +139,9 @@ func instEqual(t *testing.T, a, b []inst.Instruction) bool {
 			t.Logf("%v != %v", a[i].Type(), b[i].Type())
 			return false
 		}
-		t.Logf("%v == %v", a[i].Type(), b[i].Type())
+		//t.Logf("%v == %v", a[i].Type(), b[i].Type())
 	}
 
-	t.Logf("equal\n%v\n%v", a, b)
+	//t.Logf("equal\n%v\n%v", a, b)
 	return true
 }

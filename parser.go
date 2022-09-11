@@ -190,7 +190,7 @@ func (p *Parser) parseNumber() (int64, error) {
 	for {
 		r, n, err := p.r.ReadRune()
 		if err != nil || n == 0 {
-			return 0, fmt.Errorf("Bad number parse: %w", err)
+			return 0, fmt.Errorf("Bad number parse")
 		}
 
 		if first {

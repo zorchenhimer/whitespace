@@ -156,6 +156,10 @@ func (c Store) Type() Command { return CmdStore }
 func (c Load)  Type() Command { return CmdLoad }
 
 // Flow control
+type FlowControl interface {
+	Label() string
+}
+
 type Label struct {
 	Value string
 }
@@ -176,8 +180,20 @@ type JumpMinus struct {
 	Value string
 }
 
+func (c Label)     Label() string     { return c.Value }
+func (c Call)      Call() string      { return c.Value }
+func (c Jump)      Jump() string      { return c.Value }
+func (c JumpZero)  JumpZero() string  { return c.Value }
+func (c JumpMinus) JumpMinus() string { return c.Value }
+
 type Return struct {}
 type Stop struct {}
+
+//func (c Label)     Label() string { return c.Value }
+func (c Call)      Label() string { return c.Value }
+func (c Jump)      Label() string { return c.Value }
+func (c JumpZero)  Label() string { return c.Value }
+func (c JumpMinus) Label() string { return c.Value }
 
 func (c Label)     Type() Command { return CmdLabel }
 func (c Call)      Type() Command { return CmdCall }
@@ -197,3 +213,60 @@ func (c PrintChar)   Type() Command { return CmdPrintChar }
 func (c PrintNumber) Type() Command { return CmdPrintNumber }
 func (c ReadChar)    Type() Command { return CmdReadChar }
 func (c ReadNumber)  Type() Command { return CmdReadNumber }
+
+func CmdString(c Command) string {
+	switch c {
+	case CmdInvalid:
+		return "CmdInvalid"
+	case CmdPush:
+		return "CmdPush"
+	case CmdDuplicate:
+		return "CmdDuplicate"
+	case CmdCopy:
+		return "CmdCopy"
+	case CmdSwap:
+		return "CmdSwap"
+	case CmdDiscard:
+		return "CmdDiscard"
+	case CmdSlide:
+		return "CmdSlide"
+	case CmdAdd:
+		return "CmdAdd"
+	case CmdSubtract:
+		return "CmdSubtract"
+	case CmdMultiply:
+		return "CmdMultiply"
+	case CmdDivide:
+		return "CmdDivide"
+	case CmdModulo:
+		return "CmdModulo"
+	case CmdStore:
+		return "CmdStore"
+	case CmdLoad:
+		return "CmdLoad"
+	case CmdLabel:
+		return "CmdLabel"
+	case CmdCall:
+		return "CmdCall"
+	case CmdJump:
+		return "CmdJump"
+	case CmdJumpZero:
+		return "CmdJumpZero"
+	case CmdJumpMinus:
+		return "CmdJumpMinus"
+	case CmdReturn:
+		return "CmdReturn"
+	case CmdStop:
+		return "CmdStop"
+	case CmdPrintChar:
+		return "CmdPrintChar"
+	case CmdPrintNumber:
+		return "CmdPrintNumber"
+	case CmdReadChar:
+		return "CmdReadChar"
+	case CmdReadNumber:
+		return "CmdReadNumber"
+	}
+
+	return "Unknown Command"
+}
