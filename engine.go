@@ -11,6 +11,7 @@ type Engine struct {
 	ast *node
 	stack *Stack[int64]
 	calls *Stack[*node]
+	heap map[int64]int64
 	Debug bool
 }
 
@@ -26,7 +27,7 @@ func NewEngine(reader io.Reader) (*Engine, error) {
 		return nil, err
 	}
 
-	return &Engine{ast: ast, stack: NewStack[int64](), calls: NewStack[*node]()}, nil
+	return &Engine{ast: ast, stack: NewStack[int64](), calls: NewStack[*node](), heap: make(map[int64]int64)}, nil
 }
 
 func (e *Engine) Run(input io.Reader, output io.Writer) error {
@@ -76,32 +77,39 @@ func (e *Engine) Run(input io.Reader, output io.Writer) error {
 			e.stack.Push(t)
 
 		case inst.CmdAdd:
-			a := e.stack.Pop()
 			b := e.stack.Pop()
+			a := e.stack.Pop()
 			e.stack.Push(a+b)
 
 		case inst.CmdSubtract:
-			a := e.stack.Pop()
 			b := e.stack.Pop()
+			a := e.stack.Pop()
 			e.stack.Push(a-b)
 
 		case inst.CmdMultiply:
-			a := e.stack.Pop()
 			b := e.stack.Pop()
+			a := e.stack.Pop()
 			e.stack.Push(a*b)
 
 		case inst.CmdDivide:
-			a := e.stack.Pop()
 			b := e.stack.Pop()
+			a := e.stack.Pop()
 			e.stack.Push(a/b)
 
 		case inst.CmdModulo:
-			a := e.stack.Pop()
 			b := e.stack.Pop()
+			a := e.stack.Pop()
 			e.stack.Push(a%b)
 
-		case inst.CmdStore, inst.CmdLoad:
-			return fmt.Errorf("Store & Load unimplemented")
+		case inst.CmdStore:
+			v := e.stack.Pop()
+			a := e.stack.Pop()
+			e.heap[a] = v
+
+		case inst.CmdLoad:
+			a := e.stack.Pop()
+			v, _ := e.heap[a]
+			e.stack.Push(v)
 
 		case inst.CmdLabel:
 			// do nothing
@@ -117,14 +125,14 @@ func (e *Engine) Run(input io.Reader, output io.Writer) error {
 			branched = true
 
 		case inst.CmdJumpZero:
-			v := e.stack.Get(0)
+			v := e.stack.Pop()
 			if v == 0 {
 				e.ast = e.ast.Branch
 				branched = true
 			}
 
 		case inst.CmdJumpMinus:
-			v := e.stack.Get(0)
+			v := e.stack.Pop()
 			if v < 0 {
 				e.ast = e.ast.Branch
 				branched = true
@@ -159,7 +167,8 @@ func (e *Engine) Run(input io.Reader, output io.Writer) error {
 			if err != nil {
 				return fmt.Errorf("char read error: %w", err)
 			}
-			e.stack.Push(c)
+			a := e.stack.Pop()
+			e.heap[a] = c
 
 		case inst.CmdReadNumber:
 			if input == nil {
@@ -171,7 +180,8 @@ func (e *Engine) Run(input io.Reader, output io.Writer) error {
 			if err != nil {
 				return fmt.Errorf("char read error: %w", err)
 			}
-			e.stack.Push(c)
+			a := e.stack.Pop()
+			e.heap[a] = c
 		}
 
 		if !branched {

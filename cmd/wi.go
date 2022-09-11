@@ -32,6 +32,7 @@ func main() {
 func run(args *Arguments) error {
 	var input io.ReadCloser
 	var output io.WriteCloser
+	var reader io.Reader // user input
 	var err error
 
 	if args.Input == "" {
@@ -42,6 +43,8 @@ func run(args *Arguments) error {
 			return fmt.Errorf("Error opening input: %w", err)
 		}
 		defer input.Close()
+
+		reader = os.Stdin
 	}
 
 	if args.Output == "" {
@@ -60,7 +63,7 @@ func run(args *Arguments) error {
 	}
 	e.Debug = args.Debug
 
-	err = e.Run(nil, output)
+	err = e.Run(reader, output)
 	if err != nil {
 		return fmt.Errorf("Run error: %w", err)
 	}
