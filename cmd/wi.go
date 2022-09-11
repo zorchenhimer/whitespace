@@ -14,7 +14,7 @@ import (
 type Arguments struct {
 	Input string  `arg:"positional" help:"Input file.  Defaults to STDIN."`
 	Output string `arg:"positional" help:"Output file.  Defaults to STDOUT."`
-	Reader string `arg:"-r,--reader" help:"IO type.  Unimplemented."`
+	//Reader string `arg:"-r,--reader" help:"IO type.  Unimplemented."`
 	Debug bool `arg:"-d,--debug"`
 }
 
